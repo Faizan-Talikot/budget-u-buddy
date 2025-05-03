@@ -1,73 +1,121 @@
-# Welcome to your Lovable project
+BudgetU
+<div align="center">
+  <h3>Financial Freedom for College Students</h3>
+</div>
+📚 About
+BudgetU is a financial management platform designed specifically for college students. We help students set realistic monthly budgets, track expenses through bank integration, and make informed spending decisions in real-time. Our mission is to empower students to take control of their finances and develop healthy money habits that last a lifetime.
 
-## Project info
+"Can I afford this burger right now?" - BudgetU has the answer.
 
-**URL**: https://lovable.dev/projects/5f7c730b-628c-4085-b929-88bb3ba59f2a
+✨ Features
+💰 Smart Budget Creation
 
-## How can I edit this code?
+Set up personalized monthly budgets in minutes
+Auto-allocate funds across essential and discretionary categories
+Choose from templates designed for different student situations
 
-There are several ways of editing your application.
+🏦 Bank Statement Integration
 
-**Use Lovable**
+Securely connect your bank accounts
+Automatically categorize and track all transactions
+Get a holistic view of your spending habits
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/5f7c730b-628c-4085-b929-88bb3ba59f2a) and start prompting.
+🛒 Real-Time Spending Guidance
 
-Changes made via Lovable will be committed automatically to this repo.
+Check if you can afford a purchase before making it
+Receive alternative spending suggestions
+Get alerts when approaching category limits
 
-**Use your preferred IDE**
+📊 Financial Insights
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+Visualize your spending patterns
+Track progress toward financial goals
+Forecast your end-of-month balance
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+🚀 Getting Started
+Prerequisites
 
-Follow these steps:
+Node.js (v16+)
+npm or yarn
+MongoDB (local or Atlas connection)
+Supabase account (for authentication)
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+Installation
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+Clone the repository
 
-# Step 3: Install the necessary dependencies.
-npm i
+bashgit clone https://github.com/yourusername/budgetu.git
+cd budgetu
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+Install dependencies
+
+bash# Install backend dependencies
+cd server
+npm install
+
+# Install frontend dependencies
+cd ../client
+npm install
+
+Set up environment variables
+
+bash# In the server directory, create a .env file
+touch .env
+
+# Add the following variables
+MONGODB_URI=your_mongodb_connection_string
+JWT_SECRET=your_jwt_secret
+SUPABASE_URL=your_supabase_url
+SUPABASE_KEY=your_supabase_key
+PLAID_CLIENT_ID=your_plaid_client_id
+PLAID_SECRET=your_plaid_secret
+
+Start the development servers
+
+bash# Start backend server
+cd server
 npm run dev
-```
 
-**Edit a file directly in GitHub**
+# In a new terminal, start frontend
+cd client
+npm start
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+Visit http://localhost:3000 to see the application running
 
-**Use GitHub Codespaces**
+🧰 Tech Stack
+Frontend
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+React.js
+Redux for state management
+Material UI components
+Chart.js for data visualization
+Progressive Web App capabilities
 
-## What technologies are used for this project?
+Backend
 
-This project is built with:
+Node.js with Express
+MongoDB for database
+Supabase for authentication
+Plaid API for bank integration
+JWT for secure communication
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+Infrastructure
 
-## How can I deploy this project?
+AWS for cloud hosting
+CI/CD with GitHub Actions
+MongoDB Atlas for database hosting
 
-Simply open [Lovable](https://lovable.dev/projects/5f7c730b-628c-4085-b929-88bb3ba59f2a) and click on Share -> Publish.
+Fork the repository
+Create a feature branch (git checkout -b feature/amazing-feature)
+Commit your changes (git commit -m 'Add some amazing feature')
+Push to the branch (git push origin feature/amazing-feature)
+Open a Pull Request
 
-## Can I connect a custom domain to my Lovable project?
+📄 License
+This project is licensed under the MIT License - see the LICENSE file for details.
+🙏 Acknowledgements
 
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+<div align="center">
+  <p>Made with ❤️ for students, by students</p>
+  <p>© 2025 BudgetU Team</p>
+</div>
