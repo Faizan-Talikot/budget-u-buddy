@@ -1,8 +1,22 @@
-
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
-const Hero = () => {
+type HeroProps = {
+  openSignupDialog: () => void;
+};
+
+const Hero = ({ openSignupDialog }: HeroProps) => {
+  const navigate = useNavigate();
+
+  const handleHowItWorks = () => {
+    // Scroll to the How It Works section
+    const howItWorksSection = document.getElementById("how-it-works");
+    if (howItWorksSection) {
+      howItWorksSection.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
   return (
     <section className="py-20 md:py-28">
       <div className="budgetu-container">
@@ -12,14 +26,22 @@ const Hero = () => {
               Never Run Out of Money <span className="text-gradient">Before Month-End</span> Again
             </h1>
             <p className="text-xl text-muted-foreground mb-8">
-              BudgetU helps college students take control of their finances with smart budgeting, 
+              BudgetU helps college students take control of their finances with smart budgeting,
               expense tracking, and real-time spending guidance.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
-              <Button size="lg" className="bg-budgetu-orange hover:bg-budgetu-orange/90">
+              <Button
+                size="lg"
+                className="bg-budgetu-orange hover:bg-budgetu-orange/90"
+                onClick={openSignupDialog}
+              >
                 Start Budgeting <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
-              <Button size="lg" variant="outline">
+              <Button
+                size="lg"
+                variant="outline"
+                onClick={handleHowItWorks}
+              >
                 See How It Works
               </Button>
             </div>

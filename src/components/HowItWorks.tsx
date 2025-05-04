@@ -1,8 +1,11 @@
-
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 
-const HowItWorks = () => {
+type HowItWorksProps = {
+  openSignupDialog: () => void;
+};
+
+const HowItWorks = ({ openSignupDialog }: HowItWorksProps) => {
   const steps = [
     {
       number: "01",
@@ -40,7 +43,7 @@ const HowItWorks = () => {
 
         <div className="grid gap-8 md:gap-12">
           {steps.map((step, index) => (
-            <div 
+            <div
               key={index}
               className="flex flex-col md:flex-row gap-6 items-start md:items-center bg-background rounded-2xl p-6 border"
             >
@@ -56,7 +59,11 @@ const HowItWorks = () => {
         </div>
 
         <div className="mt-12 text-center">
-          <Button size="lg" className="bg-budgetu-orange hover:bg-budgetu-orange/90">
+          <Button
+            size="lg"
+            className="bg-budgetu-orange hover:bg-budgetu-orange/90"
+            onClick={openSignupDialog}
+          >
             Get Started Now <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
         </div>

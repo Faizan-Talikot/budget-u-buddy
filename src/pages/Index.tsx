@@ -1,4 +1,4 @@
-
+import { useState } from "react";
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
 import Features from "@/components/Features";
@@ -10,17 +10,23 @@ import CallToAction from "@/components/CallToAction";
 import Footer from "@/components/Footer";
 
 const Index = () => {
+  const [isSignupOpen, setIsSignupOpen] = useState(false);
+
+  const openSignupDialog = () => {
+    setIsSignupOpen(true);
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
-      <Header />
+      <Header isSignupOpen={isSignupOpen} setIsSignupOpen={setIsSignupOpen} />
       <main>
-        <Hero />
+        <Hero openSignupDialog={openSignupDialog} />
         <Features />
-        <HowItWorks />
+        <HowItWorks openSignupDialog={openSignupDialog} />
         <DashboardDemo />
         <Testimonials />
         <FAQ />
-        <CallToAction />
+        <CallToAction openSignupDialog={openSignupDialog} />
       </main>
       <Footer />
     </div>

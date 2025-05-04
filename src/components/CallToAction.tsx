@@ -1,8 +1,11 @@
-
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 
-const CallToAction = () => {
+type CallToActionProps = {
+  openSignupDialog: () => void;
+};
+
+const CallToAction = ({ openSignupDialog }: CallToActionProps) => {
   return (
     <section className="py-24">
       <div className="budgetu-container">
@@ -12,12 +15,13 @@ const CallToAction = () => {
               Ready to Take Control of Your Student Finances?
             </h2>
             <p className="text-lg opacity-90 mb-8">
-              Join thousands of students who never run out of money before the month ends. 
+              Join thousands of students who never run out of money before the month ends.
               Start managing your finances the smart way.
             </p>
-            <Button 
-              size="lg" 
+            <Button
+              size="lg"
               className="bg-white text-budgetu-dark-purple hover:bg-white/90"
+              onClick={openSignupDialog}
             >
               Get Started For Free <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
