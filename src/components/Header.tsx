@@ -83,7 +83,7 @@ const Header = ({ isSignupOpen, setIsSignupOpen }: HeaderProps) => {
     try {
       const result = await authApi.login(data.email, data.password);
 
-      // Store token and user info
+      // Store token and user info without any password data
       localStorage.setItem("budgetu-token", result.token);
       localStorage.setItem("budgetu-user", JSON.stringify(result.user));
 
@@ -117,7 +117,7 @@ const Header = ({ isSignupOpen, setIsSignupOpen }: HeaderProps) => {
         password: string;
       });
 
-      // Store token and user info
+      // Store token and user info without any password data
       localStorage.setItem("budgetu-token", result.token);
       localStorage.setItem("budgetu-user", JSON.stringify(result.user));
 

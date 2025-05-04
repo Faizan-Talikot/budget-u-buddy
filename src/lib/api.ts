@@ -58,6 +58,25 @@ export const authApi = {
 
         return handleResponse(response);
     },
+
+    changePassword: async (currentPassword: string, newPassword: string) => {
+        const token = localStorage.getItem("budgetu-token");
+
+        if (!token) {
+            throw new Error("No authentication token found");
+        }
+
+        const response = await fetch(`${API_URL}/users/change-password`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ currentPassword, newPassword }),
+        });
+
+        return handleResponse(response);
+    },
 };
 
 // Helper to check if user is authenticated

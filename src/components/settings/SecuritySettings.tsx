@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Loader2, Info } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { authApi, logout } from "@/lib/api";
 
 // Validation schema
 const passwordSchema = z
@@ -48,31 +49,42 @@ const SecuritySettings = () => {
     const onSubmit = async (data: PasswordFormValues) => {
         setIsLoading(true);
         try {
-            // In a real app, you would send this data to the server
-            console.log("Password data to update:", data);
+            // Call the API to change password
+            await authApi.changePassword(data.currentPassword, data.newPassword);
 
-            // For demo purposes, just show a success message
-            // In a real app, this would be an API call
+            toast({
+                title: "Password updated",
+                description: "Your password has been changed successfully. Please log in again with your new password.",
+            });
+
+            // Force logout and redirect
             setTimeout(() => {
-                toast({
-                    title: "Password updated",
-                    description: "Your password has been updated successfully.",
-                });
+                logout();
+                window.location.href = "/";
+            }, 1500);
 
-                // Reset the form
-                form.reset({
-                    currentPassword: "",
-                    newPassword: "",
-                    confirmPassword: "",
-                });
-            }, 1000);
+            // Reset the form
+            form.reset({
+                currentPassword: "",
+                newPassword: "",
+                confirmPassword: "",
+            });
         } catch (error) {
             console.error("Error updating password:", error);
-            toast({
-                title: "Update failed",
-                description: "There was an error updating your password. Please try again.",
-                variant: "destructive",
-            });
+
+            // Handle specific error for incorrect current password
+            if (error instanceof Error && error.message.includes("Current password is incorrect")) {
+                form.setError("currentPassword", {
+                    type: "manual",
+                    message: "Current password is incorrect"
+                });
+            } else {
+                toast({
+                    title: "Update failed",
+                    description: error instanceof Error ? error.message : "There was an error updating your password. Please try again.",
+                    variant: "destructive",
+                });
+            }
         } finally {
             setIsLoading(false);
         }
