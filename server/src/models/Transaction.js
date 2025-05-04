@@ -33,6 +33,12 @@ const transactionSchema = new mongoose.Schema({
     enum: ['cash', 'credit_card', 'debit_card', 'bank_transfer', 'other'],
     default: 'other'
   },
+  // Link to budget
+  budgetId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Budget',
+    sparse: true
+  },
   location: {
     type: String,
     trim: true
@@ -59,6 +65,7 @@ const transactionSchema = new mongoose.Schema({
 // Create index for faster querying
 transactionSchema.index({ user: 1, date: -1 });
 transactionSchema.index({ category: 1, user: 1 });
+transactionSchema.index({ budgetId: 1 }); // Add index for budget queries
 
 const Transaction = mongoose.model('Transaction', transactionSchema);
 

@@ -1,5 +1,38 @@
 const Transaction = require('../models/Transaction');
+const Budget = require('../models/Budget');
 const mongoose = require('mongoose');
+
+// Update budget category spent amount
+const updateBudgetCategorySpent = async (transaction, isDelete = false) => {
+  // Only update if not income and has a budgetId
+  if (transaction.isIncome || !transaction.budgetId) {
+    return;
+  }
+
+  try {
+    // Find the budget
+    const budget = await Budget.findById(transaction.budgetId);
+    if (!budget) return;
+
+    // Find the matching category
+    const category = budget.categories.find(cat => cat.name === transaction.category);
+    if (!category) return;
+
+    // Update the spent amount
+    if (isDelete) {
+      // If deleting, subtract the amount
+      category.spent = Math.max(0, category.spent - transaction.amount);
+    } else {
+      // If creating or updating, add the amount
+      category.spent += transaction.amount;
+    }
+
+    // Save the budget
+    await budget.save();
+  } catch (error) {
+    console.error('Error updating budget category:', error);
+  }
+};
 
 // Create new transaction
 const createTransaction = async (req, res) => {
@@ -11,6 +44,7 @@ const createTransaction = async (req, res) => {
       date,
       isIncome,
       paymentMethod,
+      budgetId,
       location,
       externalId,
       receiptImage,
@@ -26,6 +60,7 @@ const createTransaction = async (req, res) => {
       date: date || new Date(),
       isIncome: isIncome || false,
       paymentMethod,
+      budgetId,
       location,
       externalId,
       receiptImage,
@@ -34,6 +69,9 @@ const createTransaction = async (req, res) => {
 
     // Save transaction to database
     await newTransaction.save();
+
+    // Update budget category spent amount if applicable
+    await updateBudgetCategorySpent(newTransaction);
 
     res.status(201).json({
       message: 'Transaction created successfully',
@@ -130,10 +168,26 @@ const updateTransaction = async (req, res) => {
       date,
       isIncome,
       paymentMethod,
+      budgetId,
       location,
       receiptImage,
       notes
     } = req.body;
+
+    // Find the original transaction first for budget updates
+    const originalTransaction = await Transaction.findOne({
+      _id: req.params.id,
+      user: req.userId
+    });
+
+    if (!originalTransaction) {
+      return res.status(404).json({ message: 'Transaction not found' });
+    }
+
+    // If this was linked to a budget, update that budget to remove the amount
+    if (!originalTransaction.isIncome && originalTransaction.budgetId) {
+      await updateBudgetCategorySpent(originalTransaction, true);
+    }
 
     // Find and update transaction
     const updatedTransaction = await Transaction.findOneAndUpdate(
@@ -145,6 +199,7 @@ const updateTransaction = async (req, res) => {
         date,
         isIncome,
         paymentMethod,
+        budgetId,
         location,
         receiptImage,
         notes
@@ -152,8 +207,9 @@ const updateTransaction = async (req, res) => {
       { new: true }
     );
 
-    if (!updatedTransaction) {
-      return res.status(404).json({ message: 'Transaction not found' });
+    // Update new budget category if applicable
+    if (!updatedTransaction.isIncome && updatedTransaction.budgetId) {
+      await updateBudgetCategorySpent(updatedTransaction);
     }
 
     res.json({
@@ -168,14 +224,22 @@ const updateTransaction = async (req, res) => {
 // Delete transaction
 const deleteTransaction = async (req, res) => {
   try {
-    const deletedTransaction = await Transaction.findOneAndDelete({
+    const transaction = await Transaction.findOne({
       _id: req.params.id,
       user: req.userId
     });
 
-    if (!deletedTransaction) {
+    if (!transaction) {
       return res.status(404).json({ message: 'Transaction not found' });
     }
+
+    // If this was linked to a budget, update that budget to remove the amount
+    if (!transaction.isIncome && transaction.budgetId) {
+      await updateBudgetCategorySpent(transaction, true);
+    }
+
+    // Delete the transaction
+    await Transaction.deleteOne({ _id: req.params.id, user: req.userId });
 
     res.json({
       message: 'Transaction deleted successfully'
@@ -195,11 +259,32 @@ const getSpendingSummary = async (req, res) => {
     if (startDate) dateFilter.$gte = new Date(startDate);
     if (endDate) dateFilter.$lte = new Date(endDate);
 
-    // Aggregate transactions by category
-    const summary = await Transaction.aggregate([
+    // Get all transactions for the period
+    const transactions = await Transaction.find({
+      user: req.userId,
+      ...(Object.keys(dateFilter).length > 0 && { date: dateFilter })
+    });
+
+    // Calculate totals
+    let income = 0;
+    let expenses = 0;
+
+    transactions.forEach(transaction => {
+      if (transaction.isIncome) {
+        income += transaction.amount;
+      } else {
+        expenses += transaction.amount;
+      }
+    });
+
+    // Calculate balance
+    const balance = income - expenses;
+
+    // Aggregate expenses by category
+    const categoryData = await Transaction.aggregate([
       {
         $match: {
-          user: mongoose.Types.ObjectId(req.userId),
+          user: new mongoose.Types.ObjectId(req.userId),
           ...(Object.keys(dateFilter).length > 0 && { date: dateFilter }),
           isIncome: false
         }
@@ -207,19 +292,58 @@ const getSpendingSummary = async (req, res) => {
       {
         $group: {
           _id: '$category',
-          total: { $sum: '$amount' },
+          amount: { $sum: '$amount' },
           count: { $sum: 1 }
         }
       },
       {
-        $sort: { total: -1 }
+        $sort: { amount: -1 }
       }
     ]);
 
-    res.json(summary);
+    // Calculate percentages and format category data
+    const categoryBreakdown = categoryData.map(cat => {
+      const percentage = expenses > 0 ? (cat.amount / expenses) * 100 : 0;
+      
+      return {
+        category: cat._id,
+        amount: cat.amount,
+        percentage,
+        // Generate random color if needed
+        color: generateCategoryColor(cat._id)
+      };
+    });
+
+    // Send formatted response
+    res.json({
+      income,
+      expenses,
+      balance,
+      categoryBreakdown
+    });
   } catch (error) {
+    console.error('Error in getSpendingSummary:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
+};
+
+// Helper function to generate consistent colors for categories
+const generateCategoryColor = (category) => {
+  const predefinedColors = {
+    'Housing': '#8b5cf6',
+    'Food': '#ec4899',
+    'Shopping': '#14b8a6',
+    'Entertainment': '#f59e0b',
+    'Education': '#3b82f6',
+    'Transportation': '#06b6d4',
+    'Utilities': '#10b981',
+    'Healthcare': '#ef4444',
+    'Groceries': '#84cc16',
+    'Rent': '#9333ea',
+    'Other': '#6b7280'
+  };
+
+  return predefinedColors[category] || `#${Math.floor(Math.random()*16777215).toString(16).padStart(6, '0')}`;
 };
 
 module.exports = {
