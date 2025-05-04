@@ -1,12 +1,21 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { LogOut } from "lucide-react";
+import { LogOut, User, Settings, ChevronDown } from "lucide-react";
 import { getUserData, logout } from "@/lib/api";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 const Dashboard = () => {
     const navigate = useNavigate();
     const [userName, setUserName] = useState("");
+    const [userInitials, setUserInitials] = useState("");
 
     // Check if user is logged in (has token)
     useEffect(() => {
@@ -20,6 +29,7 @@ const Dashboard = () => {
         const userData = getUserData();
         if (userData) {
             setUserName(`${userData.firstName} ${userData.lastName}`);
+            setUserInitials(`${userData.firstName.charAt(0)}${userData.lastName.charAt(0)}`);
         }
     }, [navigate]);
 
@@ -27,6 +37,11 @@ const Dashboard = () => {
     const handleLogout = () => {
         logout();
         navigate("/");
+    };
+
+    // Handle navigation to settings
+    const handleNavigateToSettings = () => {
+        navigate("/settings");
     };
 
     return (
@@ -41,16 +56,30 @@ const Dashboard = () => {
                     </div>
 
                     <div className="flex items-center gap-4">
-                        <span className="text-sm font-medium">Welcome, {userName}</span>
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={handleLogout}
-                            className="flex items-center gap-2"
-                        >
-                            <LogOut className="h-4 w-4" />
-                            Logout
-                        </Button>
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="sm" className="flex items-center gap-2">
+                                    <Avatar className="h-8 w-8">
+                                        <AvatarFallback className="bg-budgetu-purple text-white">
+                                            {userInitials}
+                                        </AvatarFallback>
+                                    </Avatar>
+                                    <span className="hidden md:inline">{userName}</span>
+                                    <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                                <DropdownMenuItem onClick={handleNavigateToSettings} className="cursor-pointer">
+                                    <Settings className="mr-2 h-4 w-4" />
+                                    <span>Settings</span>
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
+                                    <LogOut className="mr-2 h-4 w-4" />
+                                    <span>Logout</span>
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
                     </div>
                 </div>
             </header>
